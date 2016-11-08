@@ -29806,37 +29806,61 @@
 		(0, _createClass3.default)(App, [{
 			key: "render",
 			value: function render() {
+				var i = "Hello";
+				if (i === "Hello") {
+					i = 1;
+				} else {
+					i = 0;
+				}
 				return _react2.default.createElement(
 					"div",
 					null,
 					_react2.default.createElement(
-						"h1",
-						null,
-						"This is a test ",
-						_react2.default.createElement(
-							"s",
-							null,
-							"with"
-						),
-						" horizon and react."
-					),
-					_react2.default.createElement(
 						"div",
-						{ className: "btn-group", role: "group", "aria-label": "..." },
+						{ className: "row" },
 						_react2.default.createElement(
-							"button",
-							{ type: "button", className: "btn btn-default" },
-							"Left"
+							"div",
+							{ className: "col-md-6" },
+							_react2.default.createElement(
+								"h1",
+								null,
+								"This is a test ",
+								_react2.default.createElement(
+									"s",
+									null,
+									"with"
+								),
+								" horizon and react."
+							)
 						),
 						_react2.default.createElement(
-							"button",
-							{ type: "button", className: "btn btn-default" },
-							"Middle"
-						),
-						_react2.default.createElement(
-							"button",
-							{ type: "button", className: "btn btn-default" },
-							"Right"
+							"div",
+							{ className: "col-md-6" },
+							_react2.default.createElement(
+								"div",
+								{ className: "btn-group", role: "group", "aria-label": "..." },
+								_react2.default.createElement(
+									"button",
+									{ type: "button", className: "btn btn-default" },
+									"Left"
+								),
+								_react2.default.createElement(
+									"button",
+									{ type: "button", className: "btn btn-default" },
+									"Middle"
+								),
+								_react2.default.createElement(
+									"button",
+									{ type: "button", className: "btn btn-default" },
+									"Right"
+								)
+							),
+							_react2.default.createElement(
+								"h2",
+								null,
+								" Testing webpack watch.. ",
+								i
+							)
 						)
 					)
 				);

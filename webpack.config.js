@@ -22,6 +22,11 @@ module.exports = {
 	}
       },
       {
+        enforce: "pre",
+        test: /\.(js|jsx)$/,
+        loader: "eslint",
+      },
+      {
         test: /\.css$/, 
         loader: "style-loader!css-loader" 
       },
@@ -51,6 +56,10 @@ module.exports = {
       }
       ]
     },
+    eslint: {
+        configFile: path.join(__dirname, '.eslintrc.js'),
+        useEslintrc: false
+    }, 
     resolve: {
       extensions: ['', '.js', '.jsx']
     },
