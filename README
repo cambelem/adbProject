@@ -1,2 +1,5 @@
 To start horizon:
 hz serve --dev
+
+To start webpack:
+webpack --watch --progress --colors
