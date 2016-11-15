@@ -59,7 +59,21 @@ module.exports = {
     eslint: {
         configFile: path.join(__dirname, '.eslintrc.js'),
         useEslintrc: false
-    }, 
+    },
+//    plugins: [
+//    new webpack.optimize.UglifyJsPlugin({
+//            compress: {
+//                screw_ie8: true, // React doesn't support IE8 anyway
+//               warnings: true
+//            },
+//            mangle: {
+//                screw_ie8: true
+//            },
+//            output: {
+//                comments: false,
+//                screw_ie8: true
+//            }
+//       })],  
     resolve: {
       extensions: ['', '.js', '.jsx']
     },

@@ -4,6 +4,7 @@
   "description": "To start horizon: hz serve --dev",
   "main": "webpack.config.js",
   "dependencies": {
+    "@horizon/client": "^2.0.0",
     "babel-core": "^6.18.2",
     "babel-eslint": "^7.1.0",
     "babel-loader": "^6.2.7",
