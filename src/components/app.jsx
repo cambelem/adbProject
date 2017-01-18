@@ -1,57 +1,187 @@
+/* global google */
+import _ from "lodash";
+
 import React, { Component } from 'react';
-import Messages from './messages';
-//include our newly installed horizon client
+
+import Helmet from "react-helmet";
+
+//import TwitterTimeline from 'react-twitter-embedded-timeline';
+import { Timeline } from 'react-twitter-widgets';
+
+import {
+  withGoogleMap,
+  GoogleMap,
+  Marker,
+  HeatmapLayer,
+} from "react-google-maps";
+
 const Horizon = require('@horizon/client');
 const horizon = Horizon({ secure: false });
-//this initiates our 'messages' collection inside of our Rethinkdb
-const chat = horizon('messages');
-class App extends Component {
-//init our state with the built in constructor function
-constructor(props) {
-  super(props);
-  this.state = {
-    author: false,
-    text: false
-  }
-}
-//these two handle change events will watch our form values,
-//and update our state
-handleChangeAuthor(event) {
-  this.setState({author: event.target.value});
-}
-handleChangeText(event) {
-  this.setState({text: event.target.value});
-}
-sendMessage() {
-  //check for empty strings and return early if a message/author 
-  //isn't entered
-  if(this.state.text === false || this.state.author === false) {
-    alert('Invalid Submission');
-    return;
-  }  
-  let message = {
-    text: this.state.text,
-    author: this.state.author
+const tweets = horizon('tweets');
+
+/*
+ * This is the modify version of:
+ * https://developers.google.com/maps/documentation/javascript/examples/event-arguments
+ *
+ * Add <script src="https://maps.googleapis.com/maps/api/js"></script> to your HTML to provide google.maps reference
+ */
+const GettingStartedGoogleMap = withGoogleMap(props => (
+  <GoogleMap
+    ref={props.onMapLoad}
+    defaultZoom={3}
+    defaultCenter={{ lat: -25.363882, lng: 131.044922 }}
+    onClick={props.onMapClick}
+  >
+{console.log(props.markers)}
+    {props.markers.map(marker => (
+      <Marker
+        {...marker}
+        onRightClick={() => props.onMarkerRightClick(marker)}
+      />
+    ))}
+    <HeatmapLayer />
+  </GoogleMap>
+));
+
+export default class App extends Component {
+
+  state = {
+    markers: []//[{position: {lat: -25, lng: 131},defaultAnimation:2, key: "NZ"}]
   };
-  //the store method will take our new message and store it in our
-  //Rethink collection
-  chat.store(message);
-}
- render() {
-   return (
-           <div>
-             <form>
-               <div className='center'>
-                 <button onClick={this.sendMessage.bind(this)}>Send Message</button>
-                 <input onChange={this.handleChangeAuthor.bind(this)}></input>
-                 <input onChange={this.handleChangeText.bind(this)}></input>
-               </div>
-             </form>
-             //pass chat as a prop to Messages Component for 
-             //Querying the database for messages
-             <Messages chat={chat}/>
-           </div>
-         );
+
+  handleMapLoad = this.handleMapLoad.bind(this);
+  handleMapClick = this.handleMapClick.bind(this);
+  handleMarkerRightClick = this.handleMarkerRightClick.bind(this);
+  purge = this.purge.bind(this);
+
+  handleMapLoad(map) {
+    this._mapComponent = map;
+    if (map) {
+      console.log(map.getZoom());
+    }
+  }
+
+  /*
+   * Used to grab data from tweets table from the projec database
+   */
+  componentDidMount() {
+    tweets.watch().subscribe(
+       (messages) => {
+         let t = messages.map(function(message) {
+                                console.log(message["created_at"])
+			        //console.log(message["id"])	
+		//		this.props.handleMapClick(message);
+
+				const nMarkers = {
+	     			     position: { lat: message["newLat"], lng: message["newLong"] },
+	     			     defaultAnimation: 2,
+	     			     key: message["id"]
+    	   			  };
+  
+       		//	this.setState({
+	   		//	  markers: nMarkers,
+	 		//	});
+
+         //this.setState({test: t});
+       //console.log(message);
+ 
+                                return nMarkers
+                });
+	this.setState({markers: t});
+       
+       },
+       (err) => {
+         console.log(err);
+       }
+    );
+  }
+
+ purge(){
+   console.log("hi")
+ }
+
+  /*
+   * This is called when you click on the map.
+   * Go and try click now.
+   */
+  handleMapClick(event) {
+//console.log("made it");
+    const nextMarkers = [
+      ...this.state.markers,
+      {
+        position: event.latLng, //{lat: m["newLat"], lng: m["newLong"]},
+        defaultAnimation: 2,
+        key: Date.now(), // Add a key property for: http://fb.me/react-warning-keys
+      },
+    ];
+    this.setState({
+      markers: nextMarkers,
+    });
+
+    if (nextMarkers.length === 3) {
+      this.props.toast(
+        `Right click on the marker to remove it`,
+        `Also check the code!`
+      );
+    }
+  }
+
+  handleMarkerRightClick(targetMarker) {
+    /*
+     * All you modify is data, and the view is driven by data.
+     * This is so called data-driven-development. (And yes, it's now in
+     * web front end and even with google maps API.)
+     */
+    const nextMarkers = this.state.markers.filter(marker => marker !== targetMarker);
+    this.setState({
+      markers: nextMarkers,
+    });
+  }
+
+  render() {
+    console.log(this.state.markers);
+    return (
+      <div className="row">
+      <div className="col-md-6">
+      <div style={{height: 100}}>
+        <Helmet
+          title="Getting Started"
+        />
+        <GettingStartedGoogleMap
+          containerElement={
+            <div style={{ height: 100 }} />
+          }
+          mapElement={
+            <div style={{ height: 1000, width: 1000 }} />
+          }
+          onMapLoad={this.handleMapLoad}
+          onMapClick={this.handleMapClick}
+          markers={this.state.markers}
+          onMarkerRightClick={this.handleMarkerRightClick}
+        />
+      </div>
+     </div>
+     <div className="col-md-3"> </div>
+     <div className="col-md-3">
+     <Timeline dataSource={{sourceType: 'profile', screenName: 'USGSted'}}/>
+     <div hidden style={{height: 100}}>
+	<GettingStartedGoogleMap
+	   containerElement={
+	      <div style={{ height: 100}} />
+	   }
+           mapElement={
+		<div style={{ height: 500, width: 500}}/>
+	   }
+	   onMapLoad={this.handleMapLoad}
+           onMapClick={this.handleMapClick}
+           markers={this.state.markers}
+           onMarkerRightClick={this.handleMarkerRightClick}
+	/>
+     </div>
+     </div>
+     </div>
+    );
   }
 }
-export default App;
+
+
